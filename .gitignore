@@ -7,3 +7,6 @@
 **.parquet
 **.csv
 **_SUCCESS
+**.idea/
+**.xml
+**.iml
