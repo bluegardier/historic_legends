@@ -1,0 +1,9 @@
+**.ipynb_checkpoints/
+**.egg-info
+**logs/
+**mypy_cache/
+**/score/scored/run*/
+**/model/MODEL*
+**.parquet
+**.csv
+**_SUCCESS
