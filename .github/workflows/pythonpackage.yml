@@ -6,6 +6,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    name: CI Workflow
     strategy:
       max-parallel: 4
       matrix:
@@ -27,3 +28,5 @@ jobs:
         run: |
           pip install flake8
           flake8 . --count --ignore=E501,E261,E731,W503,W504 --max-complexity=10 --show-source --statistics
+
+
