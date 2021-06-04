@@ -1,8 +1,9 @@
 from application.repositories import PostGresRiotMatchRepository
 from domain.services import PopulateMatches
+from historic_legends import config
 import fire
 
-BEGIN_INDEX = [0]
+
 
 
 def upload_match_summary_data(begin_index=None):
@@ -20,7 +21,7 @@ def upload_match_summary_data(begin_index=None):
 
     """
     if begin_index is None:
-        begin_index = BEGIN_INDEX
+        begin_index = config.BEGIN_INDEX
 
     repo = PostGresRiotMatchRepository()
     service = PopulateMatches(repo)
