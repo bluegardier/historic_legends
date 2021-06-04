@@ -1,4 +1,4 @@
-from domain.repositories import Match, MatchRepository
+from domain.repositories import MatchRepository
 
 
 class PopulateMatches:
@@ -6,7 +6,6 @@ class PopulateMatches:
         self.repository = repository
 
     def execute(self, index_list=None):
-
         if index_list is None:
             index_list = [0]
         data = self.repository.fetch_data(index_list)
