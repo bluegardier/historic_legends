@@ -15,9 +15,6 @@ class Match:
         self.lane = lane
 
 
-# Entidade do domínio
-
-
 class TeamStatus:
     def __init__(self, teamId, win, firstBlood, firstTower, firstInhibitor,
                  firstBaron, firstDragon, firstRiftHerald, towerKills,
