@@ -6,23 +6,14 @@ from sqlalchemy import exc
 from dotenv import load_dotenv
 from domain import repositories
 from riotwatcher import LolWatcher
-from historic_legends import config
+from historic_legends import config, utils
 from infra import pandas_sql_connection as psc
-from psycopg2.extensions import register_adapter, AsIs
+from psycopg2.extensions import register_adapter
 
 load_dotenv()
 
-
-def addapt_numpy_float64(numpy_float64):
-    return AsIs(numpy_float64)
-
-
-def addapt_numpy_int64(numpy_int64):
-    return AsIs(numpy_int64)
-
-
-register_adapter(np.float64, addapt_numpy_float64)
-register_adapter(np.int64, addapt_numpy_int64)
+register_adapter(np.float64, utils.adapt_numpy_float64)
+register_adapter(np.int64, utils.adapt_numpy_int64)
 
 
 class PostGresRiotMatchRepository(repositories.MatchRepository):
@@ -51,7 +42,7 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
 
         game_history_list = []
         for index in index_list:
-            print("index = {}".format(index))
+            print("Fetching Data From Index = {}".format(index))
 
             game_history = lolwatcher.match.matchlist_by_account(
                 config.REGION, begin_index=int(index),
@@ -83,6 +74,8 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
         for i in range(len(match)):
             print("Inserting Rows From Table Number: {}".format(i + 1))
             data = pd.DataFrame(match[i].__dict__)
+            data = utils.create_final_match_table(data, i, len(match))
+            print("Uploading Builded Data")
             for row in range(data.shape[0]):
                 try:
                     pd.DataFrame(data.iloc[row]). \
