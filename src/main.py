@@ -3,7 +3,7 @@ from domain.services import PopulateMatches
 from historic_legends import config
 import fire
 
-
+# Index until 1600 for full database.
 
 
 def upload_match_summary_data(begin_index=None):
@@ -21,7 +21,7 @@ def upload_match_summary_data(begin_index=None):
 
     """
     if begin_index is None:
-        begin_index = config.BEGIN_INDEX
+        begin_index = [0]
 
     repo = PostGresRiotMatchRepository()
     service = PopulateMatches(repo)
