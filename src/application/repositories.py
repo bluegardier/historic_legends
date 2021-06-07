@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 import pandas as pd
 from typing import Match
@@ -18,7 +19,7 @@ register_adapter(np.int64, utils.adapt_numpy_int64)
 
 class PostGresRiotMatchRepository(repositories.MatchRepository):
 
-    def fetch_data(self, index_list=None):
+    def fetch_data(self, index_list=[0]):
         """
         Fetch data from Riot API ad turns it into a Dataframe.
 
@@ -34,14 +35,12 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
 
         """
 
-        if index_list is None:
-            index_list = [0]
         riot_api = os.getenv("RIOT_API")
         riot_acc_id = os.getenv("RIOT_ACC_ID")
         lolwatcher = LolWatcher(riot_api)
 
         game_history_list = []
-        for index in index_list:
+        for i, index in enumerate(index_list):
             print("Fetching Data From Index = {}".format(index))
 
             game_history = lolwatcher.match.matchlist_by_account(
@@ -49,7 +48,11 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
                 encrypted_account_id=riot_acc_id)["matches"]
 
             game_history = pd.DataFrame(game_history)
+            game_history = utils.create_final_match_table(
+                game_history, i, len(index_list))
             game_history_list.append(game_history)
+            # print("Sleeping for 2 Minutes")
+            # time.sleep(200)
 
         matches = []
         for match in game_history_list:
@@ -74,17 +77,16 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
         for i in range(len(match)):
             print("Inserting Rows From Table Number: {}".format(i + 1))
             data = pd.DataFrame(match[i].__dict__)
-            data = utils.create_final_match_table(data, i, len(match))
             print("Uploading Builded Data")
             for row in range(data.shape[0]):
                 try:
-                    pd.DataFrame(data.iloc[row]). \
-                        T.to_sql(config.MATCHES_TABLE_OUTPUT,
-                                 con=psc.engine,
-                                 schema=config.SCHEMA_OUTPUT,
-                                 index=False,
-                                 chunksize=1000,
-                                 method='multi',
-                                 if_exists='append')
+                    data_for_upload = pd.DataFrame(data.iloc[row]).T
+                    data_for_upload.to_sql(config.MATCHES_TABLE_OUTPUT,
+                                           con=psc.engine,
+                                           schema=config.SCHEMA_OUTPUT,
+                                           index=False,
+                                           chunksize=1000,
+                                           method='multi',
+                                           if_exists='append')
                 except exc.IntegrityError:
                     print("This Match is already in the DataBase")

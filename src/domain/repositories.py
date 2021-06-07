@@ -3,16 +3,21 @@ from abc import ABC, abstractmethod
 
 class Match:
 
-    def __init__(self, platformId: str, gameId, champion, queue, season,
-                 timestamp, role, lane):
+    def __init__(self, platformId: str, gameid: str, champion: int, queue: int,
+                 season: int, timestamp: str, role: str, lane: str,
+                 gamemode: str, gametype: str, teamid: int, win: str):
         self.platformid = platformId
-        self.gameid = gameId
+        self.gameid = gameid
         self.champion = champion
         self.queue = queue
         self.season = season
         self.timestamp = timestamp
         self.role = role
         self.lane = lane
+        self.gamemode = gamemode
+        self.gametype = gametype
+        self.teamid = teamid
+        self.win = win
 
 
 class TeamStatus:
