@@ -5,6 +5,7 @@ from pandas.io import json
 from historic_legends import config
 from riotwatcher import LolWatcher, ApiError
 from psycopg2.extensions import AsIs
+import psycopg2
 
 
 def _gather_team_id(df: json) -> int:
@@ -152,6 +153,53 @@ def create_sql_pandas_table(sql_query: str, conn) -> pd.DataFrame:
 
     table = pd.read_sql_query(sql_query, conn)
     return table
+
+
+def _fetching_game_id_from_league_data(query)-> tuple:
+    """
+
+    Parameters
+    ----------
+    query : A SQL query. Use to fetch gameid from a table.
+
+    Returns
+    -------
+
+    """
+    connection = None
+    try:
+        connection = config.conn
+        cursor = connection.cursor()
+        postgreSQL_select_Query = query
+
+        cursor.execute(postgreSQL_select_Query)
+        rows = cursor.fetchall()
+        print("Rows fetched with success!")
+        return rows
+
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error while fetching data from PostgreSQL", error)
+
+
+
+
+def extracting_game_ids(query)-> list:
+    """
+    Extract gameids from a table as a list
+    Parameters
+    ----------
+    query : A SQL query. Use to fetch gameid from a table.
+
+    Returns
+    -------
+    A list of gameids.
+
+    """
+
+    fetched_game_ids = _fetching_game_id_from_league_data(query)
+    gameid_list = [fetched_game_ids[i][0] for i in range(len(fetched_game_ids))]
+    return gameid_list
 
 
 def adapt_numpy_float64(numpy_float64):
