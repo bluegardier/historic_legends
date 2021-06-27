@@ -6,6 +6,36 @@ class Match:
     def __init__(self, platformId: str, gameid: str, champion: int, queue: int,
                  season: int, timestamp: str, role: str, lane: str,
                  gamemode: str, gametype: str, teamid: int, win: str):
+        """__init__ [summary]
+
+        Parameters
+        ----------
+        platformId : str
+            [description]
+        gameid : str
+            [description]
+        champion : int
+            [description]
+        queue : int
+            [description]
+        season : int
+            [description]
+        timestamp : str
+            [description]
+        role : str
+            [description]
+        lane : str
+            [description]
+        gamemode : str
+            [description]
+        gametype : str
+            [description]
+        teamid : int
+            [description]
+        win : str
+            [description]
+        """
+
         self.platformid = platformId
         self.gameid = gameid
         self.champion = champion
@@ -21,26 +51,66 @@ class Match:
 
 
 class TeamStatus:
-    def __init__(self, teamId, win, firstBlood, firstTower, firstInhibitor,
-                 firstBaron, firstDragon, firstRiftHerald, towerKills,
-                 inhibitorKills, baronKills, dragonKills, vilemawKills,
-                 riftHeraldKills, dominionVictoryScore, gameid):
-        self.teamId = teamId
+    def __init__(self, teamId: int, win: str, firstBlood: bool,
+                 firstTower: bool, firstInhibitor: bool,
+                 firstBaron: bool, firstDragon: bool, firstRiftHerald: bool,
+                 towerKills: int, inhibitorKills: int, baronKills: int,
+                 dragonKills: int, vilemawKills: int, riftHeraldKills: int,
+                 dominionVictoryScore: int, gameId: str):
+        """__init__ [summary]
+
+        Parameters
+        ----------
+        teamId : int
+            [description]
+        win : str
+            [description]
+        firstBlood : bool
+            [description]
+        firstTower : bool
+            [description]
+        firstInhibitor : bool
+            [description]
+        firstBaron : bool
+            [description]
+        firstDragon : bool
+            [description]
+        firstRiftHerald : bool
+            [description]
+        towerKills : int
+            [description]
+        inhibitorKills : int
+            [description]
+        baronKills : int
+            [description]
+        dragonKills : int
+            [description]
+        vilemawKills : int
+            [description]
+        riftHeraldKills : int
+            [description]
+        dominionVictoryScore : int
+            [description]
+        gameid : str
+            [description]
+        """
+
+        self.teamid = teamId
         self.win = win
-        self.firstBlood = firstBlood
-        self.firstTower = firstTower
-        self.firstInhibitor = firstInhibitor
-        self.firstBaron = firstBaron
-        self.firstDragon = firstDragon
-        self.firstRiftHerald = firstRiftHerald
-        self.towerKills = towerKills
-        self.inhibitorKills = inhibitorKills
-        self.baronKills = baronKills
+        self.firstblood = firstBlood
+        self.firsttower = firstTower
+        self.firstinhibitor = firstInhibitor
+        self.firstbaron = firstBaron
+        self.firstdragon = firstDragon
+        self.firstriftherald = firstRiftHerald
+        self.towerkills = towerKills
+        self.inhibitorkills = inhibitorKills
+        self.baronkills = baronKills
         self.dragonKills = dragonKills
-        self.vilemawKills = vilemawKills
-        self.riftHeraldKills = riftHeraldKills
-        self.dominionVictoryScore = dominionVictoryScore
-        self.gameid = gameid
+        self.vilemawkills = vilemawKills
+        self.riftheraldkills = riftHeraldKills
+        self.dominionvictoryscore = dominionVictoryScore
+        self.gameid = gameId
 
 
 class TeamMemberInfo:
