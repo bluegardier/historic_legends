@@ -102,7 +102,7 @@ def create_final_match_table(
             table_number + 1, total_number_tables
         ))
         print("Match Info - {} / Total Matches - {}".format(
-            i,
+            i + 1,
             len(gameid_list)
         )
         )
@@ -145,7 +145,7 @@ def create_team_status_table(gameid_list: list):
             i + 1, len(gameid_list)
         ))
         print("Match Info - {} / Total Matches - {}".format(
-            i,
+            i + 1,
             len(gameid_list)
         )
         )
@@ -231,6 +231,8 @@ def extracting_game_ids(query: str) -> list:
     fetched_game_ids = _fetching_game_id_from_league_data(query)
     gameid_list = [fetched_game_ids[i][0] for i in range(len(fetched_game_ids))]
     return gameid_list
+
+
 
 
 def adapt_numpy_float64(numpy_float64):

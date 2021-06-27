@@ -96,7 +96,12 @@ class PostGresRiotTeamRepository(repositories.TeamRepository):
     def fetch_team_data(self):
 
         print("Fetching Game IDs for Requests.")
-        gameid_list = utils.extracting_game_ids(config.GAMEID_MATCH_SUMMARY_QUERY)
+        fetched_gameid_match_summary = utils.extracting_game_ids(config.GAMEID_MATCH_SUMMARY_QUERY)
+        fetched_gameid_team_summary = utils.extracting_game_ids(config.GAMEID_TEAM_SUMMARY_QUERY)
+
+        gameid_list = list(set(fetched_gameid_match_summary) - set(fetched_gameid_team_summary))
+
+        print("We have {} new games to upload.".format(len(gameid_list)))
         print("Fetching Done!")
 
         print("Fetching Team Status Data.")
