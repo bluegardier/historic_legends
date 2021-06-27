@@ -167,7 +167,6 @@ def create_team_status_table(gameid_list: list):
     return game_list
 
 
-
 def create_sql_pandas_table(sql_query: str, conn) -> pd.DataFrame:
     """
     Creates a Pandas DataFrame from the query.
@@ -233,6 +232,63 @@ def extracting_game_ids(query: str) -> list:
     return gameid_list
 
 
+def create_team_member_table(gameid_list: list):
+    game_list = []
+    riot_api = os.getenv("RIOT_API")
+    lolwatcher = LolWatcher(riot_api)
+
+    for i, gameid in enumerate(gameid_list):
+        print("Building: Table Number - {} / Total Tables - {}".format(
+            i + 1, len(gameid_list)
+        ))
+        print("Match Info - {} / Total Matches - {}".format(
+            i + 1,
+            len(gameid_list)
+        )
+        )
+        print("\n")
+        try:
+            team_member = lolwatcher.match.by_id(config.REGION, gameid)
+        except ApiError as err:
+            if err.response.status_code == 504:
+                print("ERROR 504. Retrying in 200 seconds.")
+                time.sleep(200)
+                print("Fetching the Data Again.")
+                team_member = lolwatcher.match.by_id(config.REGION, gameid)
+                print("Data Successfully Fetched!")
+
+        par_table = pd.DataFrame(team_member["participants"])
+        par_table.drop(["stats", "timeline"], axis=1, inplace=True)
+
+        list_player = []
+        for i in range(10):
+            df = pd.DataFrame([team_member["participants"][i]["stats"]])
+            list_player.append(df)
+
+        full_player = pd.concat(list_player)
+        team_status = pd.DataFrame(team_member["teams"]).drop("bans", axis=1)
+        team_status["gameId"] = team_member["gameId"]
+
+        player_list = []
+        for i in range(10):
+            player_list.append(team_member['participantIdentities'][i]['player'])
+
+        team_member_info = pd.DataFrame(player_list)
+        team_member_info = _format_team_member_table(team_member_info, team_member)
+
+        final_team_member_table = team_member_info.merge(full_player, on="participantId")
+        final_team_member_table = final_team_member_table.merge(par_table, on="participantId", how="left")
+        game_list.append(final_team_member_table)
+
+    return pd.concat(game_list)
+
+
+def _format_team_member_table(df: pd.DataFrame, df_gameid: pd.DataFrame) -> pd.DataFrame:
+    df['gameid'] = df_gameid['gameId']
+    df.reset_index(inplace=True)
+    df["index"] = df["index"] + 1
+    df.rename(columns={"index": "participantId"}, inplace=True)
+    return df
 
 
 def adapt_numpy_float64(numpy_float64):

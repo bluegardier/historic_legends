@@ -46,7 +46,9 @@ BEGIN_INDEX = [0]
 
 GAMEID_MATCH_SUMMARY_QUERY = "SELECT DISTINCT gameid from league_data.match_summary"
 GAMEID_TEAM_SUMMARY_QUERY = "SELECT DISTINCT gameid from league_data.match_team_status"
+GAMEID_TEAM_MEMBER_SUMMARY_QUERY = "SELECT DISTINCT gameid from league_data.match_team_members"
 
 SCHEMA_OUTPUT = "league_data"
 MATCHES_TABLE_OUTPUT = "match_summary"
 TEAM_TABLE_OUTPUT = "match_team_status"
+TEAM_MEMBER_TABLE_OUTPUT = "match_team_members"

@@ -1,5 +1,6 @@
-from application.repositories import PostGresRiotMatchRepository, PostGresRiotTeamRepository
-from domain.services import PopulateMatches, PopulateTeam
+from application.repositories import PostGresRiotMatchRepository, PostGresRiotTeamRepository, \
+    PostGresRiotTeamMemberRepository
+from domain.services import PopulateMatches, PopulateTeam, PopulateTeamMember
 from historic_legends import config
 import fire
 
@@ -41,6 +42,20 @@ def upload_team_summary_data():
 
     repo = PostGresRiotTeamRepository()
     service = PopulateTeam(repo)
+    service.execute()
+
+
+def upload_team_member_data():
+    """
+    Uploads the Team Member Summary table to PostGres Database.
+
+    Returns
+    -------
+
+    """
+
+    repo = PostGresRiotTeamMemberRepository()
+    service = PopulateTeamMember(repo)
     service.execute()
 
 

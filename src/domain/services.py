@@ -1,4 +1,4 @@
-from domain.repositories import MatchRepository, TeamRepository
+from domain.repositories import MatchRepository, TeamRepository, TeamMemberRepository
 
 
 class PopulateMatches:
@@ -20,3 +20,11 @@ class PopulateTeam:
         data = self.repository.fetch_team_data()
         self.repository.insert_team_status(data)
 
+
+class PopulateTeamMember:
+    def __init__(self, repository: TeamMemberRepository) -> None:
+        self.repository = repository
+
+    def execute(self):
+        data = self.repository.fetch_team_member_data()
+        self.repository.insert_team_member(data)

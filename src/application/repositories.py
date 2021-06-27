@@ -10,7 +10,7 @@ from historic_legends import config, utils
 from infra import pandas_sql_connection as psc
 from psycopg2.extensions import register_adapter
 
-from src.domain.repositories import TeamStatus
+from src.domain.repositories import TeamStatus, TeamMember
 
 load_dotenv()
 
@@ -104,7 +104,6 @@ class PostGresRiotTeamRepository(repositories.TeamRepository):
         print("We have {} new games to upload.".format(len(gameid_list)))
         print("Fetching Done!")
 
-        print("Fetching Team Status Data.")
         team_status_data = utils.create_team_status_table(gameid_list)
 
         team_status_list = []
@@ -112,7 +111,6 @@ class PostGresRiotTeamRepository(repositories.TeamRepository):
             team_status_list.append(repositories.TeamStatus(**game))
 
         return team_status_list
-
 
     def insert_team_status(self, team_status: TeamStatus):
         for i in range(len(team_status)):
@@ -123,6 +121,46 @@ class PostGresRiotTeamRepository(repositories.TeamRepository):
                 try:
                     data_for_upload = pd.DataFrame(data.iloc[row]).T
                     data_for_upload.to_sql(config.TEAM_TABLE_OUTPUT,
+                                           con=psc.engine,
+                                           schema=config.SCHEMA_OUTPUT,
+                                           index=False,
+                                           chunksize=1000,
+                                           method='multi',
+                                           if_exists='append')
+                except exc.IntegrityError:
+                    print("This Match is already in the DataBase")
+
+
+class PostGresRiotTeamMemberRepository(repositories.TeamMember):
+
+    def fetch_team_member_data(self):
+
+        print("Fetching Game IDs for Requests.")
+        fetched_gameid_team_summary = utils.extracting_game_ids(config.GAMEID_TEAM_SUMMARY_QUERY)
+        fetched_gameid_team_member_summary = utils.extracting_game_ids(config.GAMEID_TEAM_MEMBER_SUMMARY_QUERY)
+
+        gameid_list = list(set(fetched_gameid_team_summary) - set(fetched_gameid_team_member_summary))
+
+        print("We have {} new games to upload.".format(len(gameid_list)))
+        print("Fetching Done!")
+
+        team_member_data = utils.create_team_member_table(gameid_list)
+
+        team_member_list = []
+        for i in range(len(team_member_data)):
+            team_member_list.append(repositories.TeamMember(**team_member_data.iloc[i]))
+
+        return team_member_list
+
+    def insert_team_member(self, team_member: TeamMember):
+        for i in range(len(team_member)):
+            print("Inserting Rows From Table Number: {}".format(i + 1))
+            data = pd.DataFrame([team_member[i].__dict__])
+            print("Uploading Builded Data")
+            for row in range(data.shape[0]):
+                try:
+                    data_for_upload = pd.DataFrame(data.iloc[row]).T
+                    data_for_upload.to_sql(config.TEAM_MEMBER_TABLE_OUTPUT,
                                            con=psc.engine,
                                            schema=config.SCHEMA_OUTPUT,
                                            index=False,
