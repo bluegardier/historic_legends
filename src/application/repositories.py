@@ -51,8 +51,6 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
             game_history = utils.create_final_match_table(
                 game_history, i, len(index_list))
             game_history_list.append(game_history)
-            # print("Sleeping for 2 Minutes")
-            # time.sleep(200)
 
         matches = []
         for match in game_history_list:
@@ -90,3 +88,34 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
                                            if_exists='append')
                 except exc.IntegrityError:
                     print("This Match is already in the DataBase")
+
+
+class PostGresRiotTeamRepository():
+
+    def fetch_data(self):
+        riot_api = os.getenv("RIOT_API")
+        lolwatcher = LolWatcher(riot_api)
+        print("Fetching Game IDs for Requests.")
+        data = utils.extracting_game_ids(config.GAMEID_MATCH_SUMMARY_QUERY)
+        print("Fetching Done!")
+
+        print("Fetching Team Status Data.")
+        game_list = []
+        for i, gameid in enumerate(data):
+            player = lolwatcher.match.by_id(config.REGION, gameid)
+            match_table = pd.DataFrame(player["teams"])
+            match_table["gameId"] = player["gameId"]
+            match_table.drop("bans", axis=1, inplace=True)
+            print("Position: {}. Completion Done: {}".format(
+                i + 1,
+                ((i + 1) / len(match_table).round(2))
+            )
+            )
+            game_list.append(match_table)
+
+        team_status_list = []
+        for game in game_list:
+            team_status_list.append(repositories.TeamStatus(**game))
+
+        return team_status_list
+
