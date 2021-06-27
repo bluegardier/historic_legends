@@ -106,7 +106,7 @@ class TeamStatus:
         self.towerkills = towerKills
         self.inhibitorkills = inhibitorKills
         self.baronkills = baronKills
-        self.dragonKills = dragonKills
+        self.dragonkills = dragonKills
         self.vilemawkills = vilemawKills
         self.riftheraldkills = riftHeraldKills
         self.dominionvictoryscore = dominionVictoryScore
@@ -135,10 +135,5 @@ class TeamRepository(ABC):
         pass
 
     @abstractmethod
-    def insert_team_member_info(
-            self, team_member_info: TeamMemberInfo) -> TeamMemberInfo:
-        pass
-
-    @abstractmethod
-    def fetch_team_data(self, match_id: str):
+    def fetch_team_data(self):
         pass

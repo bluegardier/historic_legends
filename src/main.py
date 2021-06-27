@@ -1,7 +1,8 @@
-from application.repositories import PostGresRiotMatchRepository
-from domain.services import PopulateMatches
+from application.repositories import PostGresRiotMatchRepository, PostGresRiotTeamRepository
+from domain.services import PopulateMatches, PopulateTeam
 from historic_legends import config
 import fire
+
 
 # Index until 1600 for full database.
 
@@ -27,6 +28,20 @@ def upload_match_summary_data(begin_index=None):
     service = PopulateMatches(repo)
     index_list = begin_index
     service.execute(index_list)
+
+
+def upload_team_summary_data():
+    """
+    Uploads the Team Summary table to PostGres Database.
+
+    Returns
+    -------
+
+    """
+
+    repo = PostGresRiotTeamRepository()
+    service = PopulateTeam(repo)
+    service.execute()
 
 
 def cli():

@@ -135,6 +135,39 @@ def create_final_match_table(
     return final_df
 
 
+def create_team_status_table(gameid_list: list):
+    game_list = []
+    riot_api = os.getenv("RIOT_API")
+    lolwatcher = LolWatcher(riot_api)
+
+    for i, gameid in enumerate(gameid_list):
+        print("Building: Table Number - {} / Total Tables - {}".format(
+            i + 1, len(gameid_list)
+        ))
+        print("Match Info - {} / Total Matches - {}".format(
+            i,
+            len(gameid_list)
+        )
+        )
+        print("\n")
+        try:
+            team_match = lolwatcher.match.by_id(config.REGION, gameid)
+        except ApiError as err:
+            if err.response.status_code == 504:
+                print("ERROR 504. Retrying in 200 seconds.")
+                time.sleep(200)
+                print("Fetching the Data Again.")
+                team_match = lolwatcher.match.by_id(config.REGION, gameid)
+                print("Data Successfully Fetched!")
+
+        match_table = pd.DataFrame(team_match["teams"])
+        match_table["gameId"] = team_match["gameId"]
+        match_table.drop("bans", axis=1, inplace=True)
+        game_list.append(match_table)
+    return game_list
+
+
+
 def create_sql_pandas_table(sql_query: str, conn) -> pd.DataFrame:
     """
     Creates a Pandas DataFrame from the query.
@@ -155,7 +188,7 @@ def create_sql_pandas_table(sql_query: str, conn) -> pd.DataFrame:
     return table
 
 
-def _fetching_game_id_from_league_data(query)-> tuple:
+def _fetching_game_id_from_league_data(query: str) -> tuple:
     """
 
     Parameters
@@ -182,9 +215,7 @@ def _fetching_game_id_from_league_data(query)-> tuple:
         print("Error while fetching data from PostgreSQL", error)
 
 
-
-
-def extracting_game_ids(query)-> list:
+def extracting_game_ids(query: str) -> list:
     """
     Extract gameids from a table as a list
     Parameters

@@ -49,3 +49,4 @@ GAMEID_TEAM_SUMMARY_QUERY = "SELECT DISTINCT gameid from league_data.match_team_
 
 SCHEMA_OUTPUT = "league_data"
 MATCHES_TABLE_OUTPUT = "match_summary"
+TEAM_TABLE_OUTPUT = "match_team_status"

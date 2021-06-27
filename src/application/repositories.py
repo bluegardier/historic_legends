@@ -1,5 +1,4 @@
 import os
-import time
 import numpy as np
 import pandas as pd
 from typing import Match
@@ -10,6 +9,8 @@ from riotwatcher import LolWatcher
 from historic_legends import config, utils
 from infra import pandas_sql_connection as psc
 from psycopg2.extensions import register_adapter
+
+from src.domain.repositories import TeamStatus
 
 load_dotenv()
 
@@ -90,32 +91,39 @@ class PostGresRiotMatchRepository(repositories.MatchRepository):
                     print("This Match is already in the DataBase")
 
 
-class PostGresRiotTeamRepository():
+class PostGresRiotTeamRepository(repositories.TeamRepository):
 
-    def fetch_data(self):
-        riot_api = os.getenv("RIOT_API")
-        lolwatcher = LolWatcher(riot_api)
+    def fetch_team_data(self):
+
         print("Fetching Game IDs for Requests.")
-        data = utils.extracting_game_ids(config.GAMEID_MATCH_SUMMARY_QUERY)
+        gameid_list = utils.extracting_game_ids(config.GAMEID_MATCH_SUMMARY_QUERY)
         print("Fetching Done!")
 
         print("Fetching Team Status Data.")
-        game_list = []
-        for i, gameid in enumerate(data):
-            player = lolwatcher.match.by_id(config.REGION, gameid)
-            match_table = pd.DataFrame(player["teams"])
-            match_table["gameId"] = player["gameId"]
-            match_table.drop("bans", axis=1, inplace=True)
-            print("Position: {}. Completion Done: {}".format(
-                i + 1,
-                ((i + 1) / len(match_table).round(2))
-            )
-            )
-            game_list.append(match_table)
+        team_status_data = utils.create_team_status_table(gameid_list)
 
         team_status_list = []
-        for game in game_list:
+        for game in team_status_data:
             team_status_list.append(repositories.TeamStatus(**game))
 
         return team_status_list
+
+
+    def insert_team_status(self, team_status: TeamStatus):
+        for i in range(len(team_status)):
+            print("Inserting Rows From Table Number: {}".format(i + 1))
+            data = pd.DataFrame(team_status[i].__dict__)
+            print("Uploading Builded Data")
+            for row in range(data.shape[0]):
+                try:
+                    data_for_upload = pd.DataFrame(data.iloc[row]).T
+                    data_for_upload.to_sql(config.TEAM_TABLE_OUTPUT,
+                                           con=psc.engine,
+                                           schema=config.SCHEMA_OUTPUT,
+                                           index=False,
+                                           chunksize=1000,
+                                           method='multi',
+                                           if_exists='append')
+                except exc.IntegrityError:
+                    print("This Match is already in the DataBase")
 
